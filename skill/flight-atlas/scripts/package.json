@@ -1,0 +1,14 @@
+{
+  "name": "flight-atlas-builder",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Builds a self-contained 3D flight atlas page from flights.json",
+  "bin": { "flight-atlas": "build.mjs" },
+  "dependencies": {
+    "d3-geo": "3.1.0",
+    "i18n-iso-countries": "7.11.0",
+    "topojson-client": "3.1.0",
+    "world-atlas": "2.0.2"
+  }
+}

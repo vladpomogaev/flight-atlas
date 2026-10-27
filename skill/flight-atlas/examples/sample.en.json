@@ -1,0 +1,32 @@
+{
+  "owner": "Sample traveler",
+  "lang": "en",
+  "home": "AMS",
+  "updated": "2026-10-27",
+  "flights": [
+    {"date":"2024-02-10","flight":"KL1001","airline":"KLM","from":"AMS","to":"LHR","minutes":70},
+    {"date":"2024-02-14","flight":"KL1008","airline":"KLM","from":"LHR","to":"AMS","minutes":65},
+    {"date":"2024-04-03","flight":"KL641","airline":"KLM","from":"AMS","to":"JFK","minutes":500},
+    {"date":"2024-04-09","flight":"DL1987","airline":"Delta","from":"JFK","to":"SFO","minutes":385},
+    {"date":"2024-04-16","flight":"UA990","airline":"United","from":"SFO","to":"FRA","minutes":650},
+    {"date":"2024-04-17","flight":"LH992","airline":"Lufthansa","from":"FRA","to":"AMS","minutes":65},
+    {"date":"2024-07-01","flight":"TK1952","airline":"Turkish Airlines","from":"AMS","to":"IST","minutes":215},
+    {"date":"2024-07-02","flight":"TK52","airline":"Turkish Airlines","from":"IST","to":"NRT","minutes":745},
+    {"date":"2024-07-14","flight":"NH847","airline":"ANA","from":"HND","to":"SIN","minutes":455},
+    {"date":"2024-07-20","flight":"SQ324","airline":"Singapore Airlines","from":"SIN","to":"AMS","minutes":800},
+    {"date":"2025-01-18","flight":"VY8316","airline":"Vueling","from":"AMS","to":"BCN","minutes":135},
+    {"date":"2025-01-22","flight":"VY8313","airline":"Vueling","from":"BCN","to":"AMS","minutes":140},
+    {"date":"2025-05-05","flight":"EK148","airline":"Emirates","from":"AMS","to":"DXB","minutes":400},
+    {"date":"2025-05-08","flight":"EK418","airline":"Emirates","from":"DXB","to":"SYD","minutes":840},
+    {"date":"2025-05-20","flight":"QF25","airline":"Qantas","from":"SYD","to":"AKL","minutes":180},
+    {"date":"2025-05-29","flight":"NZ6","airline":"Air New Zealand","from":"AKL","to":"LAX","minutes":740},
+    {"date":"2025-06-01","flight":"KL602","airline":"KLM","from":"LAX","to":"AMS","minutes":630},
+    {"date":"2025-09-12","flight":"KL1673","airline":"KLM","from":"AMS","to":"LIS","minutes":175},
+    {"date":"2025-09-16","flight":"TP664","airline":"TAP","from":"LIS","to":"AMS","minutes":165},
+    {"date":"2026-02-02","flight":"KL1269","airline":"KLM","from":"AMS","to":"CPH","minutes":80,"status":"refunded"},
+    {"date":"2026-03-14","flight":"KL791","airline":"KLM","from":"AMS","to":"GIG","minutes":705},
+    {"date":"2026-03-22","flight":"LA8064","airline":"LATAM","from":"GRU","to":"LIS","minutes":585},
+    {"date":"2026-03-23","flight":"TP662","airline":"TAP","from":"LIS","to":"AMS","minutes":165},
+    {"date":"2026-12-19","flight":"KL835","airline":"KLM","from":"AMS","to":"BKK","minutes":690,"status":"upcoming"}
+  ]
+}
