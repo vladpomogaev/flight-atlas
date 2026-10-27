@@ -25,7 +25,7 @@ Example from a real inbox: 19 flights, 40,140 km (exactly once around the equato
 ## Install
 
 **claude.ai / Claude desktop**
-1. Download [`flight-atlas.zip`](https://github.com/vladpomogaev/flight-atlas/releases/latest/download/flight-atlas.zip).
+1. Download [`flight-atlas.zip`](https://github.com/vladpomogaev/flight-atlas/raw/main/flight-atlas.zip).
 2. Settings → Capabilities → Skills → Upload skill.
 3. Connect Gmail (or another mail connector).
 4. Ask: **"Find all my flights in my email and make me a flight atlas."**
@@ -85,6 +85,6 @@ Made by [Vladislav Pomogaev](https://github.com/vladpomogaev) with Claude. MIT l
 - кнопка «Пролететь путь»: самолётик пролетает все рейсы по порядку, можно ставить на паузу, листать и тянуть шкалу времени;
 - налёт, часы в небе, города, страны, авиакомпании, календарь по месяцам, рекорды, силуэты стран, журнал рейсов.
 
-**Установка в claude.ai:** скачайте [`flight-atlas.zip`](https://github.com/vladpomogaev/flight-atlas/releases/latest/download/flight-atlas.zip) → Настройки → Возможности → Навыки → Загрузить. Подключите Gmail и попросите: **«Найди все мои перелёты в почте и сделай атлас неба»**.
+**Установка в claude.ai:** скачайте [`flight-atlas.zip`](https://github.com/vladpomogaev/flight-atlas/raw/main/flight-atlas.zip) → Настройки → Возможности → Навыки → Загрузить. Подключите Gmail и попросите: **«Найди все мои перелёты в почте и сделай атлас неба»**.
 
 [Мой атлас](https://vladpomogaev.github.io/flight-atlas/) — 19 рейсов, 40 140 км, 65 часов в воздухе.
