@@ -58,7 +58,10 @@ Show the user a compact table of what you found (date, flight, route, status), t
 Write `flights.json` (schema below), then run:
 
 ```bash
-cd <skill>/scripts && npm install --silent   # first time only
+# If this skill folder has no scripts/ (e.g. installed as a single SKILL.md), fetch them:
+#   git clone --depth 1 https://github.com/vladpomogaev/flight-atlas /tmp/flight-atlas && SK=/tmp/flight-atlas/skill/flight-atlas
+SK=${SK:-<this skill folder>}
+cd "$SK/scripts" && npm install --silent   # first time only
 node build.mjs /path/to/flights.json /path/to/flight-atlas.html
 ```
 
