@@ -85,7 +85,7 @@ The builder resolves airports (5,300+ IATA codes bundled), groups airports of th
 }
 ```
 
-`status` defaults to `flown`. For a Russian-speaking user set `"lang":"ru"` and pass `cityNames` in Russian for every city.
+`status` defaults to `flown`. `lang` is the language the page opens in; the page also has an EN/RU switch. For a Russian-speaking user set `"lang":"ru"`. Names can be flat (they apply to `lang`) or per language, for the switch: `"cityNames": {"ru": {...}, "en": {...}}`, and the same for `countryNames`, `airlineNames` (e.g. `{"en": {"Победа": "Pobeda"}}`) and `owner` (`{"ru": "Иван Петров", "en": "Ivan Petrov"}`). Russian names for ~100 common cities are built in; give Russian `cityNames` for any other city.
 
 ### Publish
 

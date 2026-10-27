@@ -17,8 +17,20 @@ const [, , inFile, outArg] = process.argv;
 if (!inFile) { console.error("Usage: node build.mjs <flights.json> [out.html]"); process.exit(1); }
 const cfg = JSON.parse(fs.readFileSync(inFile, "utf8"));
 const lang = cfg.lang === "ru" ? "ru" : "en";
-countries.registerLocale(require(`i18n-iso-countries/langs/${lang}.json`));
-countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
+const LANGS = ["en", "ru"];
+for (const l of LANGS) countries.registerLocale(require(`i18n-iso-countries/langs/${l}.json`));
+// names can be given flat (for cfg.lang) or per language: {"ru": {...}, "en": {...}}
+const perLang = obj => {
+  const o = obj || {}; const nested = Object.values(o).some(v => v && typeof v === "object");
+  const out = { en: {}, ru: {} };
+  if (nested) { for (const l of LANGS) Object.assign(out[l], o[l] || {}); } else Object.assign(out[lang], o);
+  return out;
+};
+const CITY_NAMES = perLang(cfg.cityNames), COUNTRY_NAMES = perLang(cfg.countryNames);
+// airports whose OurAirports municipality is a suburb, not the city people say
+const EN_CITY = {SAW:"Istanbul",IST:"Istanbul",NRT:"Tokyo",HND:"Tokyo",DWC:"Dubai",KIX:"Osaka",ITM:"Osaka",STN:"London",LGW:"London",LTN:"London",EWR:"New York",GIG:"Rio de Janeiro",GRU:"São Paulo",DMK:"Bangkok",BKK:"Bangkok",PVG:"Shanghai",PEK:"Beijing",PKX:"Beijing",ICN:"Seoul",GMP:"Seoul",CGK:"Jakarta",BER:"Berlin",ORY:"Paris",CDG:"Paris",MXP:"Milan",LIN:"Milan",BGY:"Milan",FCO:"Rome",CIA:"Rome"};
+// built-in Russian names for common cities (keyed by any airport of the city)
+const RU_CITY = {MOW:"Москва",SVO:"Москва",DME:"Москва",VKO:"Москва",LED:"Санкт-Петербург",OMS:"Омск",OVB:"Новосибирск",SVX:"Екатеринбург",KZN:"Казань",AER:"Сочи",KRR:"Краснодар",ROV:"Ростов-на-Дону",KJA:"Красноярск",IKT:"Иркутск",VVO:"Владивосток",KGD:"Калининград",UFA:"Уфа",KUF:"Самара",TJM:"Тюмень",CEK:"Челябинск",MRV:"Минеральные Воды",NQZ:"Астана",ALA:"Алматы",TAS:"Ташкент",SKD:"Самарканд",FRU:"Бишкек",DYU:"Душанбе",GYD:"Баку",TBS:"Тбилиси",BUS:"Батуми",KUT:"Кутаиси",EVN:"Ереван",MSQ:"Минск",IST:"Стамбул",SAW:"Стамбул",AYT:"Анталья",DXB:"Дубай",DWC:"Дубай",SHJ:"Шарджа",AUH:"Абу-Даби",DOH:"Доха",TLV:"Тель-Авив",CAI:"Каир",HRG:"Хургада",SSH:"Шарм-эш-Шейх",LHR:"Лондон",LGW:"Лондон",STN:"Лондон",CDG:"Париж",ORY:"Париж",AMS:"Амстердам",FRA:"Франкфурт",MUC:"Мюнхен",BER:"Берлин",BCN:"Барселона",MAD:"Мадрид",LIS:"Лиссабон",FCO:"Рим",MXP:"Милан",ATH:"Афины",PRG:"Прага",VIE:"Вена",BUD:"Будапешт",WAW:"Варшава",HEL:"Хельсинки",CPH:"Копенгаген",ARN:"Стокгольм",OSL:"Осло",ZRH:"Цюрих",GVA:"Женева",BEG:"Белград",JFK:"Нью-Йорк",EWR:"Нью-Йорк",LGA:"Нью-Йорк",LAX:"Лос-Анджелес",SFO:"Сан-Франциско",MIA:"Майами",ORD:"Чикаго",YYZ:"Торонто",MEX:"Мехико",CUN:"Канкун",GRU:"Сан-Паулу",GIG:"Рио-де-Жанейро",EZE:"Буэнос-Айрес",NRT:"Токио",HND:"Токио",ICN:"Сеул",PEK:"Пекин",PVG:"Шанхай",HKG:"Гонконг",SIN:"Сингапур",BKK:"Бангкок",HKT:"Пхукет",DPS:"Денпасар",KUL:"Куала-Лумпур",SGN:"Хошимин",HAN:"Ханой",CXR:"Нячанг",DEL:"Дели",BOM:"Мумбаи",GOI:"Гоа",CMB:"Коломбо",MLE:"Мале",SYD:"Сидней",MEL:"Мельбурн",AKL:"Окленд",JNB:"Йоханнесбург",CPT:"Кейптаун",NBO:"Найроби"};
 
 const AIR = JSON.parse(fs.readFileSync(path.join(ASSETS, "airports.json"), "utf8"));
 const t110 = require("world-atlas/countries-110m.json");
@@ -46,19 +58,20 @@ const used = [...new Set(flights.flatMap(f => [f.from, f.to]))];
 const cityKeyOf = {}, groups = {};
 for (const code of used) {
   const [, muni, cc] = AIR[code];
-  const gk = (cfg.merge && cfg.merge[code]) || `${norm(muni) || code}|${cc}`;
+  const gk = (cfg.merge && cfg.merge[code]) || `${EN_CITY[code] || norm(muni) || code}|${cc}`;
   (groups[gk] = groups[gk] || []).push(code);
 }
-const CITIES = {};
+const CITIES = {}, CITY_L = { en: {}, ru: {} };
 for (const [gk, codes] of Object.entries(groups)) {
   codes.sort();
   const key = codes[0];
   const lat = codes.reduce((s, c) => s + AIR[c][3], 0) / codes.length;
   const lon = codes.reduce((s, c) => s + AIR[c][4], 0) / codes.length;
   const cc = AIR[codes[0]][2];
-  const names = cfg.cityNames || {};
-  const n = codes.map(c => names[c]).find(Boolean) || names[gk.split("|")[0]] || gk.split("|")[0];
-  CITIES[key] = { n, cc, lat: +lat.toFixed(3), lon: +lon.toFixed(3) };
+  const base = gk.split("|")[0];
+  const nm = l => codes.map(c => CITY_NAMES[l][c]).find(Boolean) || CITY_NAMES[l][base] || (l === "ru" ? codes.map(c => RU_CITY[c]).find(Boolean) : "") || base;
+  CITY_L.en[key] = nm("en"); CITY_L.ru[key] = nm("ru");
+  CITIES[key] = { n: CITY_L[lang][key], cc, lat: +lat.toFixed(3), lon: +lon.toFixed(3) };
   codes.forEach(c => (cityKeyOf[c] = key));
 }
 const homeCode = String(cfg.home || flights[0].from).toUpperCase();
@@ -66,8 +79,10 @@ if (!cityKeyOf[homeCode]) { console.error(`home "${homeCode}" must be one of the
 
 /* ---------- countries ---------- */
 const ccSet = new Set(Object.values(CITIES).map(c => c.cc));
-const ccName = {};
-for (const cc of ccSet) ccName[cc] = (cfg.countryNames && cfg.countryNames[cc]) || countries.getName(cc, lang, { select: "alias" }) || countries.getName(cc, "en") || cc;
+const ccNameOf = (cc, l) => COUNTRY_NAMES[l][cc] || countries.getName(cc, l, { select: "alias" }) || countries.getName(cc, "en") || cc;
+const CC_L = { en: {}, ru: {} };
+for (const cc of ccSet) for (const l of LANGS) CC_L[l][cc] = ccNameOf(cc, l);
+const ccName = CC_L[lang];
 const a2ofNum = id => countries.numericToAlpha2(String(id).padStart(3, "0"));
 
 const q = v => Math.round(v * 100);
@@ -105,31 +120,36 @@ const m = mesh(t110, t110.objects.countries);
 const BORD = m.coordinates.map(l => l.flatMap(([x, y]) => [q(x), q(y)]));
 
 const LBL_FIX = { RU: [61, 95], US: [39, -98], CA: [58, -100], FR: [46.5, 2.5], NO: [62, 9], CL: [-30, -71], NZ: [-42, 172] };
-const labels = [];
+const labels = [], labelL = [];
 for (const f of c110) {
   const cc = a2ofNum(f.id); if (!cc) continue;
-  const name = (ccName[cc]) || countries.getName(cc, lang, { select: "alias" }); if (!name) continue;
+  const name = ccSet.has(cc) ? ccName[cc] : countries.getName(cc, lang, { select: "alias" }); if (!name) continue;
+  const lname = Object.fromEntries(LANGS.map(l => [l, ccSet.has(cc) ? CC_L[l][cc] : (countries.getName(cc, l, { select: "alias" }) || name)]));
   const main = mainPart(f); let [lon, lat] = d3.geoCentroid(main);
   if (LBL_FIX[cc]) [lat, lon] = LBL_FIX[cc];
   const area = Math.round(d3.geoArea(main) * 1000);
   if (area < 2 && !ccSet.has(cc)) continue;
-  labels.push([name, +lat.toFixed(1), +lon.toFixed(1), ccSet.has(cc) ? cc : "", area]);
+  labels.push([name, +lat.toFixed(1), +lon.toFixed(1), ccSet.has(cc) ? cc : "", area]); labelL.push(lname);
 }
 
 /* ---------- reference world cities ---------- */
 const REF = [["London","Лондон",51.5,-.13],["Paris","Париж",48.86,2.35],["Berlin","Берлин",52.52,13.4],["Rome","Рим",41.9,12.5],["Madrid","Мадрид",40.4,-3.7],["Cairo","Каир",30.04,31.24],["Riyadh","Эр-Рияд",24.7,46.7],["Tehran","Тегеран",35.7,51.4],["Delhi","Дели",28.6,77.2],["Mumbai","Мумбаи",19.07,72.88],["Beijing","Пекин",39.9,116.4],["Shanghai","Шанхай",31.23,121.47],["Tokyo","Токио",35.68,139.69],["Seoul","Сеул",37.57,126.98],["Bangkok","Бангкок",13.75,100.5],["Singapore","Сингапур",1.35,103.82],["Hong Kong","Гонконг",22.32,114.17],["Jakarta","Джакарта",-6.2,106.85],["Istanbul","Стамбул",41.01,28.98],["Moscow","Москва",55.75,37.62],["Novosibirsk","Новосибирск",55.03,82.92],["Almaty","Алматы",43.24,76.95],["Dubai","Дубай",25.2,55.27],["New York","Нью-Йорк",40.71,-74],["Los Angeles","Лос-Анджелес",34.05,-118.24],["Chicago","Чикаго",41.88,-87.63],["Toronto","Торонто",43.65,-79.38],["Mexico City","Мехико",19.43,-99.13],["São Paulo","Сан-Паулу",-23.55,-46.63],["Buenos Aires","Буэнос-Айрес",-34.6,-58.38],["Lima","Лима",-12.05,-77.04],["Bogotá","Богота",4.71,-74.07],["Lagos","Лагос",6.52,3.38],["Nairobi","Найроби",-1.29,36.82],["Johannesburg","Йоханнесбург",-26.2,28.05],["Sydney","Сидней",-33.87,151.2],["Melbourne","Мельбурн",-37.81,144.96],["Auckland","Окленд",-36.85,174.76],["Helsinki","Хельсинки",60.17,24.94],["Warsaw","Варшава",52.23,21.01],["Athens","Афины",37.98,23.73],["Lisbon","Лиссабон",38.72,-9.14],["Kyiv","Киев",50.45,30.52],["Tashkent","Ташкент",41.3,69.24],["Ulaanbaatar","Улан-Батор",47.89,106.9],["Vladivostok","Владивосток",43.12,131.89],["Honolulu","Гонолулу",21.31,-157.86],["Reykjavik","Рейкьявик",64.15,-21.94]];
 const gcKm = (a, b) => d3.geoDistance([a[1], a[0]], [b[1], b[0]]) * 6371;
-const ref = REF.filter(r => !Object.values(CITIES).some(c => gcKm([r[2], r[3]], [c.lat, c.lon]) < 120)).map(r => [lang === "ru" ? r[1] : r[0], r[2], r[3]]);
+const refKeep = REF.filter(r => !Object.values(CITIES).some(c => gcKm([r[2], r[3]], [c.lat, c.lon]) < 120));
+const ref = refKeep.map(r => [lang === "ru" ? r[1] : r[0], r[2], r[3]]);
+const AL_NAMES = perLang(cfg.airlineNames);
+const OWN = typeof cfg.owner === "object" && cfg.owner ? cfg.owner : { [lang]: cfg.owner || "" };
+const L = Object.fromEntries(LANGS.map(l => [l, { o: OWN[l] || OWN[lang] || "", al: AL_NAMES[l], c: CITY_L[l], cc: CC_L[l], lb: labelL.map(x => x[l]), rf: refKeep.map(r => l === "ru" ? r[1] : r[0]) }]));
 
 /* ---------- assemble ---------- */
 const airport = {}, apc = {};
 for (const code of used) { airport[code] = cityKeyOf[code]; apc[code] = [AIR[code][3], AIR[code][4]]; }
 const DATA = {
-  lang, owner: cfg.owner || "", title: cfg.title || "", t1: cfg.t1 || "", t2: cfg.t2 || "",
+  lang, owner: OWN[lang] || "", title: cfg.title || "", t1: cfg.t1 || "", t2: cfg.t2 || "",
   updated: cfg.updated || new Date().toISOString().slice(0, 10), home: cityKeyOf[homeCode], homeGen: cfg.homeGenitive || "",
   cities: CITIES, ccName, airport, apc,
   flights: flights.map(f => [f.date, f.fn, f.al, f.from, f.to, f.st, f.min, f.est ? 1 : 0]),
-  geo: { LANDP, BORD, V }, labels, ref
+  geo: { LANDP, BORD, V }, labels, ref, L
 };
 const tpl = fs.readFileSync(path.join(ASSETS, "template.html"), "utf8");
 const title = (cfg.title || (lang === "ru" ? "Атлас неба" : "Atlas of the Sky")).replace(/[<>&]/g, "");

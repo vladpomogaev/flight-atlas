@@ -72,6 +72,7 @@ h1 em{font-style:italic;font-weight:500;background:linear-gradient(100deg,#ffd27
 .legend i.up{background:repeating-linear-gradient(90deg,var(--sky) 0 5px,transparent 5px 8px)}
 .legend i.v{height:10px;width:16px;border-radius:2px;background:#ffb54733;border:1px solid #ffb547aa}
 .layers{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.tg.lang{color:var(--paper);border-color:#ffb54766;font-weight:600;letter-spacing:.08em}
 .tg{font-family:var(--f-mono);font-size:11px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:#0b1122b3;color:var(--fog);cursor:pointer;backdrop-filter:blur(6px)}
 .tg[aria-pressed="true"]{color:var(--paper);border-color:#ffffff33}
 .tg[aria-pressed="true"]::before{content:"● ";color:var(--sodium)}
@@ -271,6 +272,7 @@ footer b{font-family:var(--f-display);font-style:italic;font-size:20px;color:var
         <button class="tg" id="lay-ctry" aria-pressed="true" data-t="ly_ctry"></button>
         <button class="tg" id="lay-ref" aria-pressed="true" data-t="ly_ref"></button>
         <button class="tg" id="lay-up" aria-pressed="true" data-t="ly_up"></button>
+        <button class="tg lang" id="lang" data-ta="aria_lang"></button>
       </div>
     </div>
   </div></div>
@@ -331,7 +333,12 @@ footer b{font-family:var(--f-display);font-style:italic;font-size:20px;color:var
 <script>
 /* =================== DATA (injected by build.mjs) =================== */
 const D=__DATA__;
-const LANG=D.lang==="ru"?"ru":"en";
+const LANG=(()=>{let q=null;try{q=new URLSearchParams(location.search).get("lang")}catch(e){}
+  if(q!=="ru"&&q!=="en"){try{q=localStorage.getItem("flight-atlas-lang")}catch(e){q=null}}
+  return q==="ru"||q==="en"?q:(D.lang==="ru"?"ru":"en")})();
+if(D.L&&D.L[LANG]){const L=D.L[LANG];if(L.o)D.owner=L.o;if(L.al)D.flights.forEach(r=>{if(L.al[r[2]])r[2]=L.al[r[2]]});Object.keys(D.cities).forEach(k=>{if(L.c[k])D.cities[k].n=L.c[k]});D.ccName=L.cc;
+  D.labels.forEach((r,i)=>{if(L.lb[i])r[0]=L.lb[i]});D.ref.forEach((r,i)=>{if(L.rf[i])r[0]=L.rf[i]});}
+const OWNLANG=LANG===(D.lang==="ru"?"ru":"en");
 const I18N={
  ru:{aria_globe:"Интерактивный глобус с маршрутами. Тяните, чтобы вращать; Ctrl и колесо, щипок или кнопки справа для зума",
   lg_flown:"Летал, толще — чаще",lg_up:"Впереди",lg_ctry:"Страны, где был",aria_layers:"Слои карты",ly_ctry:"Страны",ly_ref:"Города мира",ly_up:"Будущее",
@@ -352,7 +359,7 @@ const I18N={
   c_flight:"Рейс",c_dur:"В пути",c_dist:"Расстояние",c_rfnote:" · билет возвращён, полёта не было",c_route:"Маршрут",c_totkm:"Всего км",c_air:"В небе",c_first:"Впервые",c_last:"Последний",c_city:"Город",c_home:"Дом",c_flights:"Рейсов",
   c_all:"Весь путь",c_kmsky:"км в небе",c_hours:"Часы",c_hint:"Нажмите «Пролететь путь», выберите маршрут на глобусе или потяните шкалу времени.",allFl:"все рейсы",
   e3d:"Не удалось загрузить 3D-движок. Обновите страницу.",zoomMac:"Чтобы приблизить, удерживайте ⌘ или сведите пальцы",zoomPc:"Чтобы приблизить, удерживайте Ctrl",nofs:"Полноэкранный режим недоступен",cityAria:(c,n)=>`${c}: ${n} рейсов`,
-  hmf:(h,m)=>`${h} ч ${m} м`},
+  hmf:(h,m)=>`${h} ч ${m} м`,aria_lang:"Switch to English",langBtn:"EN"},
  en:{aria_globe:"Interactive globe of routes. Drag to rotate; Ctrl + wheel, pinch or the buttons on the right to zoom",
   lg_flown:"Flown, thicker = more often",lg_up:"Upcoming",lg_ctry:"Countries visited",aria_layers:"Map layers",ly_ctry:"Countries",ly_ref:"World cities",ly_up:"Upcoming",
   aria_ctrl:"Globe controls",aria_zin:"Zoom in",aria_zout:"Zoom out",aria_home:"Show all routes",aria_spin:"Auto-rotate",aria_fs:"Full screen",
@@ -372,7 +379,7 @@ const I18N={
   c_flight:"Flight",c_dur:"Duration",c_dist:"Distance",c_rfnote:" · ticket refunded, not flown",c_route:"Route",c_totkm:"Total km",c_air:"In the air",c_first:"First",c_last:"Last",c_city:"City",c_home:"Home",c_flights:"Flights",
   c_all:"The whole journey",c_kmsky:"km in the sky",c_hours:"Hours",c_hint:"Press “Fly the journey”, pick a route on the globe or drag the timeline.",allFl:"all flights",
   e3d:"Could not load the 3D engine. Please reload the page.",zoomMac:"Hold ⌘ or pinch to zoom",zoomPc:"Hold Ctrl to zoom",nofs:"Full screen is not available",cityAria:(c,n)=>`${c}: ${n} flights`,
-  hmf:(h,m)=>`${h}h ${m}m`}
+  hmf:(h,m)=>`${h}h ${m}m`,aria_lang:"Переключить на русский",langBtn:"RU"}
 };
 const I=I18N[LANG];
 function pl(n,a,b,c){const m10=n%10,m100=n%100;return m10===1&&m100!==11?a:m10>=2&&m10<=4&&(m100<10||m100>=20)?b:c}
@@ -387,8 +394,11 @@ document.querySelectorAll("[data-t]").forEach(el=>el.textContent=I[el.dataset.t]
 document.querySelectorAll("[data-th]").forEach(el=>el.innerHTML=I[el.dataset.th]);
 document.querySelectorAll("[data-ta]").forEach(el=>el.setAttribute("aria-label",I[el.dataset.ta]));
 document.getElementById("eyebrow").textContent=(D.owner?D.owner+" · ":"")+I.logbook;
-document.getElementById("h1a").textContent=D.t1||I.t1;document.getElementById("h1b").textContent=D.t2||I.t2;
-document.getElementById("foot-t").textContent=D.title||I.title;
+document.getElementById("h1a").textContent=(OWNLANG&&D.t1)||I.t1;document.getElementById("h1b").textContent=(OWNLANG&&D.t2)||I.t2;
+document.getElementById("foot-t").textContent=(OWNLANG&&D.title)||I.title;
+(()=>{const b=document.getElementById("lang");b.textContent=I.langBtn;b.addEventListener("click",()=>{const to=LANG==="ru"?"en":"ru";
+  try{localStorage.setItem("flight-atlas-lang",to)}catch(e){}
+  try{const u=new URL(location.href);u.searchParams.set("lang",to);location.replace(u.href)}catch(e){location.reload()}})})();
 
 /* =================== HELPERS =================== */
 const rad=d=>d*Math.PI/180;
@@ -421,7 +431,7 @@ const airlines=new Set(flown.map(f=>f.al).filter(Boolean));
 const VISITED=new Set(ccs),UPC=new Set(upc.flatMap(f=>[CITY[f.a].cc,CITY[f.b].cc]).filter(c=>!VISITED.has(c)));
 Object.entries(CITY).forEach(([k,c])=>{c.k=k;const fs=flown.filter(f=>f.a===k||f.b===k);c.v=fs.length;c.first=fs[0]?.date;c.last=fs[fs.length-1]?.date;c.upOnly=!c.v&&upc.some(f=>f.a===k||f.b===k)});
 document.getElementById("kicker").innerHTML=I.kick(flown.length,ccs.size,Math.round(totMin/60));
-document.title=D.title||I.title;
+document.title=(OWNLANG&&D.title)||I.title;
 
 /* =================== STATS =================== */
 const topR=RT.find(r=>r.n)||RT[0];
@@ -474,7 +484,7 @@ const FIRSTM=FL[0].date.slice(0,7),LASTM=FL[FL.length-1].date.slice(0,7);
   const R=[
     {e:I.r_long,big:clock(longest.min),u:I.h,what:`${CITY[longest.a].n} → ${CITY[longest.b].n}`,det:`${longest.fn} · ${fmtDL(longest.date)}`,go:()=>pickFlight(longest.i)},
     {e:I.r_short,big:clock(shortest.min),u:I.h,what:`${CITY[shortest.a].n} → ${CITY[shortest.b].n}`,det:`${shortest.fn} · ${fmtDL(shortest.date)}`,go:()=>pickFlight(shortest.i)},
-    far&&{e:I.r_far,big:nf(fd),u:I.km,what:`${CITY[far].n}, ${CC_NAME[CITY[far].cc]}`,det:I.fromHome(D.homeGen||hc.n),go:()=>pickCity(far)},
+    far&&{e:I.r_far,big:nf(fd),u:I.km,what:`${CITY[far].n}, ${CC_NAME[CITY[far].cc]}`,det:(LANG==="ru"&&!D.homeGen?`по прямой от дома (${hc.n})`:I.fromHome((LANG==="ru"&&D.homeGen)||hc.n)),go:()=>pickCity(far)},
     {e:I.r_busy,big:busy[1].length,u:I.fl(busy[1].length),what:I.perDay(dayCountries.size),det:`${fmtDL(busy[0])} · ${busy[1].map(f=>CITY[f.a].n).concat(CITY[busy[1][busy[1].length-1].b].n).join(" → ")}`,go:()=>pickFlight(busy[1][0].i)},
   ].filter(Boolean);
   const el=document.getElementById("recs");

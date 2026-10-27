@@ -1,11 +1,12 @@
 {
-  "owner": "Владислав Помогаев",
+  "owner": {"ru": "Владислав Помогаев", "en": "Vladislav Pomogaev"},
   "lang": "ru",
   "home": "OMS",
   "homeGenitive": "Омска",
   "updated": "2026-10-27",
   "cityNames": {"OMS":"Омск","SVO":"Москва","LED":"Санкт-Петербург","NQZ":"Астана","GYD":"Баку","TBS":"Тбилиси","AER":"Сочи","TLV":"Тель-Авив","BUS":"Батуми","DXB":"Дубай","SHJ":"Шарджа","SAW":"Стамбул"},
   "countryNames": {"AE":"ОАЭ"},
+  "airlineNames": {"en": {"Азимут":"Azimuth","Аэрофлот":"Aeroflot","Победа":"Pobeda","Уральские авиалинии":"Ural Airlines","через Aviasales":"via Aviasales"}},
   "flights": [
     {"date":"2024-07-14","flight":"DP6522","airline":"Победа","from":"OMS","to":"SVO","minutes":215},
     {"date":"2024-08-13","flight":"SU1762","airline":"Аэрофлот","from":"SVO","to":"OMS","minutes":200,"estimated":true},
