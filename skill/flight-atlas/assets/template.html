@@ -76,7 +76,7 @@ h1 em{font-style:italic;font-weight:500;background:linear-gradient(100deg,#ffd27
 .tg{font-family:var(--f-mono);font-size:11px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:#0b1122b3;color:var(--fog);cursor:pointer;backdrop-filter:blur(6px)}
 .tg[aria-pressed="true"]{color:var(--paper);border-color:#ffffff33}
 .tg[aria-pressed="true"]::before{content:"● ";color:var(--sodium)}
-@media (max-width:760px){.side{display:none}}
+@media (max-width:760px){.legend{display:none}.layers .tg:not(.lang){display:none}.side{position:absolute;right:16px;top:30px}}
 
 .ctrl{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:3}
 .ctrl button{width:42px;height:42px;display:grid;place-items:center;background:#0b1122d9;border:1px solid var(--line);border-radius:12px;cursor:pointer;backdrop-filter:blur(8px);color:var(--paper);font-size:20px;line-height:1;transition:border-color .15s,background .15s}
